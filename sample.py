@@ -93,7 +93,7 @@ else:
     pad = tgt.vocab.stoi[tgt.pad_token]
     loss = Perplexity(weight, pad)
     if torch.cuda.is_available():
-        loss.cuda()
+        loss = loss.cuda()
 
 
     seq2seq = None
@@ -109,7 +109,7 @@ else:
                              eos_id=tgt.eos_id, sos_id=tgt.sos_id)
         seq2seq = Seq2seq(encoder, decoder)
         if torch.cuda.is_available():
-            seq2seq.cuda()
+            seq2seq = seq2seq.cuda()
 
         for param in seq2seq.parameters():
             param.data.uniform_(-0.08, 0.08)
