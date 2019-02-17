@@ -2,6 +2,7 @@ from __future__ import print_function
 import math
 import torch.nn as nn
 import numpy as np
+import torch
 
 class Loss(object):
     """ Base class for encapsulation of the loss functions.
@@ -114,6 +115,8 @@ class NLLLoss(Loss):
         return loss
 
     def eval_batch(self, outputs, target):
+        if torch.cuda.is_available():
+            target = target.cuda()
         self.acc_loss += self.criterion(outputs, target)
         self.norm_term += 1
 
