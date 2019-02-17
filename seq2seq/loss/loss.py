@@ -138,6 +138,8 @@ class Perplexity(NLLLoss):
         super(Perplexity, self).__init__(weight=weight, mask=mask, size_average=False)
 
     def eval_batch(self, outputs, target):
+        if torch.cuda.is_available():
+            target = target.cuda()
         self.acc_loss += self.criterion(outputs, target)
         if self.mask is None:
             self.norm_term += np.prod(target.size())
