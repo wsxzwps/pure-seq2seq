@@ -47,6 +47,9 @@ class Evaluator(object):
             for batch in batch_iterator:
                 input_variables, input_lengths  = getattr(batch, seq2seq.src_field_name)
                 target_variables = getattr(batch, seq2seq.tgt_field_name)
+                
+                if torch.cuda.is_available():
+                    target_variables = target_variables.cuda()
 
                 decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths.tolist(), target_variables)
 
