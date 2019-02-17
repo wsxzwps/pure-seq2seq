@@ -94,6 +94,7 @@ else:
     loss = Perplexity(weight, pad)
     if torch.cuda.is_available():
         loss.cuda()
+        pad.cuda()
 
     seq2seq = None
     optimizer = None
