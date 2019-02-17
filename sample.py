@@ -93,7 +93,7 @@ else:
     pad = tgt.vocab.stoi[tgt.pad_token]
     loss = Perplexity(weight, pad)
     if torch.cuda.is_available():
-        loss = loss.cuda()
+        loss.cuda()
 
 
     seq2seq = None
