@@ -33,6 +33,8 @@ parser.add_argument('--train_path', action='store', dest='train_path',
                     help='Path to train data')
 parser.add_argument('--dev_path', action='store', dest='dev_path',
                     help='Path to dev data')
+parser.add_argument('--test_path', action='store', dest='test_path',
+                    help='Path to test data')
 parser.add_argument('--expt_dir', action='store', dest='expt_dir', default='./experiment',
                     help='Path to experiment directory. If load_checkpoint is True, then path to checkpoint directory has to be provided')
 parser.add_argument('--load_checkpoint', action='store', dest='load_checkpoint',
@@ -44,6 +46,7 @@ parser.add_argument('--log-level', dest='log_level',
                     default='info',
                     help='Logging level.')
 
+
 opt = parser.parse_args()
 
 LOG_FORMAT = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
@@ -52,7 +55,6 @@ logging.info(opt)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 if opt.load_checkpoint is not None:
     logging.info("loading checkpoint from {}".format(os.path.join(opt.expt_dir, Checkpoint.CHECKPOINT_DIR_NAME, opt.load_checkpoint)))
     checkpoint_path = os.path.join(opt.expt_dir, Checkpoint.CHECKPOINT_DIR_NAME, opt.load_checkpoint)
@@ -60,6 +62,21 @@ if opt.load_checkpoint is not None:
     seq2seq = checkpoint.model
     input_vocab = checkpoint.input_vocab
     output_vocab = checkpoint.output_vocab
+    
+    predictor = Predictor(seq2seq, input_vocab, output_vocab)
+    results = []
+    with open(opt.test_path, 'r') as f:
+        sentences = f.readlines()
+
+    for sentence in sentences:
+        results.append(predictor.predict(sentence.strip().split()))
+    
+    with open('results', 'w') as f:
+        for i in range(len(results)):
+            f.write(sentences[i])
+            f.write('\n')
+            f.write(' '.join(results[i]))
+            f.write('\n')
 else:
     # Prepare dataset
     src = SourceField()
@@ -132,9 +149,4 @@ else:
                       teacher_forcing_ratio=0.5,
                       resume=opt.resume)
 
-predictor = Predictor(seq2seq, input_vocab, output_vocab)
 
-while True:
-    seq_str = raw_input("Type in a source sequence:")
-    seq = seq_str.strip().split()
-    print(predictor.predict(seq))
