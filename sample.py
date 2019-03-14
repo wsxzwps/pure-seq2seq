@@ -89,7 +89,7 @@ else:
         'dev':'Data/validation',
         'test':'Data/test'
     }
-    loader = LoaderHandler(wordDict, data_paths)
+    loader = LoaderHandler(wordDict, data_paths, 32)
     train = loader.ldTrain
     dev = loader.ldDev
     # train = torchtext.data.TabularDataset(

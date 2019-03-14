@@ -85,7 +85,7 @@ def seq_collate(batch):
 
 class LoaderHandler(object):
 	"""docstring for LoaderHandler"""
-	def __init__(self, wordDict, data_paths):
+	def __init__(self, wordDict, data_paths, batch_size):
 		super(LoaderHandler, self).__init__()
 		print('loader handler...')	
 
@@ -93,8 +93,8 @@ class LoaderHandler(object):
 		self.ldTestEval = DataLoader(testData,batch_size=1, shuffle=False, collate_fn=seq_collate)
 
 		trainData = CustomDataset(wordDict, data_paths['train'])
-		self.ldTrain = DataLoader(trainData,batch_size=config['batchSize'], shuffle=True, num_workers=2, collate_fn=seq_collate)
+		self.ldTrain = DataLoader(trainData,batch_size=batch_size, shuffle=True, num_workers=2, collate_fn=seq_collate)
 
 		devData = CustomDataset(wordDict, data_paths['dev'])
-		self.ldDev = DataLoader(devData,batch_size=config['batchSize'], shuffle=False, num_workers=2, collate_fn=seq_collate)
+		self.ldDev = DataLoader(devData,batch_size=batch_size, shuffle=False, num_workers=2, collate_fn=seq_collate)
 		self.ldDevEval = DataLoader(devData,batch_size=1, shuffle=False, collate_fn=seq_collate)
