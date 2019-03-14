@@ -16,6 +16,8 @@ from seq2seq.evaluator import Predictor
 from seq2seq.util.checkpoint import Checkpoint
 from seq2seq.loader.loader import CustomDataset, LoaderHandler
 
+import numpy as np
+
 try:
     raw_input          # Python 2
 except NameError:
