@@ -14,6 +14,7 @@ from seq2seq.optim import Optimizer
 from seq2seq.dataset import SourceField, TargetField
 from seq2seq.evaluator import Predictor
 from seq2seq.util.checkpoint import Checkpoint
+from seq2seq.loader.loader import CustomDataset, LoaderHandler
 
 try:
     raw_input          # Python 2
@@ -79,25 +80,41 @@ if opt.load_checkpoint is not None:
             f.write('\n')
 else:
     # Prepare dataset
-    src = SourceField()
-    tgt = TargetField()
-    max_len = 50
-    def len_filter(example):
-        return len(example.src) <= max_len and len(example.tgt) <= max_len
-    train = torchtext.data.TabularDataset(
-        path=opt.train_path, format='tsv',
-        fields=[('src', src), ('tgt', tgt)],
-        filter_pred=len_filter
-    )
-    dev = torchtext.data.TabularDataset(
-        path=opt.dev_path, format='tsv',
-        fields=[('src', src), ('tgt', tgt)],
-        filter_pred=len_filter
-    )
-    src.build_vocab(train, max_size=50000)
-    tgt.build_vocab(train, max_size=50000)
-    input_vocab = src.vocab
-    output_vocab = tgt.vocab
+    max_len = 100
+
+
+    wordDict = 'AuxData/wordDict'
+    data_paths = {
+        'train':'data/train',
+        'dev':'data/validation',
+        'test':'data/test'
+    }
+    loader = LoaderHandler(wordDict, data_paths)
+    train = loader.ldTrain
+    dev = loader.ldDev
+    # train = torchtext.data.TabularDataset(
+    #     path=opt.train_path, format='tsv',
+    #     fields=[('src', src), ('tgt', tgt)],
+    #     filter_pred=len_filter
+    # )
+    # dev = torchtext.data.TabularDataset(
+    #     path=opt.dev_path, format='tsv',
+    #     fields=[('src', src), ('tgt', tgt)],
+    #     filter_pred=len_filter
+    # )
+    # src.build_vocab(train, max_size=50000)
+    # tgt.build_vocab(train, max_size=50000)
+    # input_vocab = src.vocab
+    # output_vocab = tgt.vocab
+
+
+
+    # hard coded some arguments for now
+    embedding_path = 'auxData/word2vec.npy'
+    embedding = torch.FloatTensor(np.load(embedding_path))
+    vocab_size = len(embedding)
+    sos_id = 2
+    eos_id = 3
 
     # NOTE: If the source field name and the target field name
     # are different from 'src' and 'tgt' respectively, they have
@@ -106,11 +123,12 @@ else:
     # seq2seq.tgt_field_name = 'tgt'
 
     # Prepare loss
-    weight = torch.ones(len(tgt.vocab))
-    pad = tgt.vocab.stoi[tgt.pad_token]
+    weight = torch.ones(vocab_size)
+    pad = 0
     loss = Perplexity(weight, pad)
     if torch.cuda.is_available():
         loss.cuda()
+
 
 
     seq2seq = None
@@ -119,11 +137,12 @@ else:
         # Initialize model
         hidden_size=128
         bidirectional = True
-        encoder = EncoderRNN(len(src.vocab), max_len, hidden_size,
-                             bidirectional=bidirectional, variable_lengths=True)
-        decoder = DecoderRNN(len(tgt.vocab), max_len, hidden_size * 2 if bidirectional else hidden_size,
+
+        encoder = EncoderRNN(vocab_size, max_len, hidden_size,
+                             bidirectional=bidirectional, variable_lengths=True, embedding=embedding)
+        decoder = DecoderRNN(vocab_size, max_len, hidden_size * 2 if bidirectional else hidden_size,
                              dropout_p=0.2, use_attention=True, bidirectional=bidirectional,
-                             eos_id=tgt.eos_id, sos_id=tgt.sos_id)
+                             eos_id=eos_id, sos_id=sos_id)
         seq2seq = Seq2seq(encoder, decoder)
         if torch.cuda.is_available():
             seq2seq = seq2seq.cuda()
@@ -141,7 +160,7 @@ else:
     # train
     t = SupervisedTrainer(loss=loss, batch_size=32,
                           checkpoint_every=1000,
-                          print_every=10, expt_dir=opt.expt_dir)
+                          print_every=10, expt_dir=opt.expt_vocab_sizedir)
 
     seq2seq = t.train(seq2seq, train,
                       num_epochs=10, dev_data=dev,
