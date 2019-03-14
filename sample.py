@@ -85,9 +85,9 @@ else:
 
     wordDict = 'AuxData/wordDict'
     data_paths = {
-        'train':'data/train',
-        'dev':'data/validation',
-        'test':'data/test'
+        'train':'Data/train',
+        'dev':'Data/validation',
+        'test':'Data/test'
     }
     loader = LoaderHandler(wordDict, data_paths)
     train = loader.ldTrain
@@ -110,7 +110,7 @@ else:
 
 
     # hard coded some arguments for now
-    embedding_path = 'auxData/word2vec.npy'
+    embedding_path = 'AuxData/word2vec.npy'
     embedding = torch.FloatTensor(np.load(embedding_path))
     vocab_size = len(embedding)
     sos_id = 2
