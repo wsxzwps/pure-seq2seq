@@ -86,7 +86,7 @@ else:
     wordDict = 'AuxData/wordDict'
     data_paths = {
         'train':'Data/train',
-        'dev':'Data/validation',
+        'dev':'Data/dev',
         'test':'Data/test'
     }
     loader = LoaderHandler(wordDict, data_paths, 32)
