@@ -94,7 +94,7 @@ class SupervisedTrainer(object):
             for batch in ld:
                 step += 1
                 step_elapsed += 1
-                inputs = next(ld)
+                inputs = batch
                 
                 input_variables, input_lengths = inputs['question'], inputs['qLengths']
                 target_variables = inputs['response']
