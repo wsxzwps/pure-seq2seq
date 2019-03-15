@@ -126,11 +126,6 @@ else:
 
     # Prepare loss
     loss = Criterion()
-    if torch.cuda.is_available():
-        loss.cuda()
-
-
-
     seq2seq = None
     optimizer = None
     if not opt.resume:
