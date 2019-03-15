@@ -153,3 +153,21 @@ class Perplexity(NLLLoss):
             print("WARNING: Loss exceeded maximum value, capping to e^100")
             return math.exp(Perplexity._MAX_EXP)
         return math.exp(nll)
+
+class Criterion():
+    def __init__(self):
+        self.criterion = nn.NLLLoss
+        self.loss = 0
+    
+    def eval_batch(self, outputs, target, target_lengths):
+        batch_size = outputs.shape[0]
+        for i in range(batch_size):
+            loss += self.criterion(outputs[i,:target_lengths[i]-1,:], target[i,1:target_lengths[i]])
+        loss /= batch_size
+        self.loss = loss
+    
+    def reset(self):
+        self.loss = 0
+
+    def get_loss(self):
+        return self.loss.item()
