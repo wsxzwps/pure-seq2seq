@@ -156,7 +156,7 @@ class Perplexity(NLLLoss):
 
 class Criterion():
     def __init__(self):
-        self.criterion = nn.NLLLoss
+        self.criterion = nn.NLLLoss()
         self.loss = 0
     
     def eval_batch(self, outputs, target, target_lengths):
