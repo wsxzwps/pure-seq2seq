@@ -120,7 +120,7 @@ class SupervisedTrainer(object):
 
                 # Checkpoint
                 if step % self.checkpoint_every == 0 or step == total_steps:
-                    torch.save(model.state_dict(),self.expt_dir)
+                    torch.save(model.state_dict(),self.expt_dir+'checkpoint'+str(step))
 
             if step_elapsed == 0: continue
 
