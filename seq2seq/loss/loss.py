@@ -163,9 +163,8 @@ class Criterion():
         out_reshaped = torch.cat([outputs[i].unsqueeze(1) for i in range(len(outputs))],1)
         batch_size = out_reshaped.shape[0]
         for i in range(batch_size):
-            loss += self.criterion(out_reshaped[i,:target_lengths[i]-1,:], target[i,1:target_lengths[i]])
-        loss /= batch_size
-        self.loss = loss
+            self.loss += self.criterion(out_reshaped[i,:target_lengths[i]-1,:], target[i,1:target_lengths[i]])
+        self.loss /= batch_size
     
     def reset(self):
         self.loss = 0
