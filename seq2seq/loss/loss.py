@@ -160,9 +160,7 @@ class Criterion():
         self.loss = 0
     
     def eval_batch(self, outputs, target, target_lengths):
-        out_reshaped = outputs[0].unsqueeze(1)
-        for i in range(len(outputs)-1):
-            out_reshaped = torch.cat(outputs[i].unsqueeze(1),1)
+        out_reshaped = torch.cat([outputs[i].unsqueeze(1) for i in range(len(outputs))],1)
         batch_size = out_reshaped.shape[0]
         for i in range(batch_size):
             loss += self.criterion(out_reshaped[i,:target_lengths[i]-1,:], target[i,1:target_lengths[i]])
