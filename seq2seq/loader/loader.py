@@ -67,10 +67,10 @@ def seq_collate(batch):
             if seqLen > maxLen:
                 maxLen = seqLen
         packed = np.zeros([batchSize, maxLen])
-        lengths = sorted(lengths, key=lambda x:x[0], reverse=True)
+        lengths = sorted(lengths, key=lambda x:x[1], reverse=True)
         for i in range(batchSize):
             packed[lengths[i][0]][:lengths[i][1]] = batch[lengths[i][0]][ind]
-        lengths = np.array(lengths)
+        lengths = [lengths[i][1] for i in range(len(lengths))]
         # inds = np.argsort(lengths)[::-1]
         return torch.LongTensor(packed), torch.tensor(lengths)
 
