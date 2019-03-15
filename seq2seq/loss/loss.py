@@ -171,3 +171,6 @@ class Criterion():
 
     def get_loss(self):
         return self.loss.item()
+    
+    def backward(self):
+        self.loss.backward()
