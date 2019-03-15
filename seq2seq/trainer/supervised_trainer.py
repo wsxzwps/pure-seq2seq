@@ -175,7 +175,7 @@ class SupervisedTrainer(object):
             start_epoch = 1
             step = 0
             if optimizer is None:
-                optimizer = Optimizer(optim.Adam(model.parameters(), lr=0.0005), max_grad_norm=5)
+                optimizer = Optimizer(optim.Adam(model.parameters(), lr=0.005), max_grad_norm=5)
             self.optimizer = optimizer
 
         self.logger.info("Optimizer: %s, Scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
