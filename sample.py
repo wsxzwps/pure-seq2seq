@@ -38,7 +38,7 @@ parser.add_argument('--dev_path', action='store', dest='dev_path',
                     help='Path to dev data')
 parser.add_argument('--test_path', action='store', dest='test_path',
                     help='Path to test data')
-parser.add_argument('--expt_dir', action='store', dest='expt_dir', default='./experiment',
+parser.add_argument('--expt_dir', action='store', dest='expt_dir', default='experiment',
                     help='Path to experiment directory. If load_checkpoint is True, then path to checkpoint directory has to be provided')
 parser.add_argument('--load_checkpoint', action='store', dest='load_checkpoint',
                     help='The name of the checkpoint to load, usually an encoded time string')
