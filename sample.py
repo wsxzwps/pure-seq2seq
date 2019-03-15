@@ -9,7 +9,7 @@ import torchtext
 import seq2seq
 from seq2seq.trainer import SupervisedTrainer
 from seq2seq.models import EncoderRNN, DecoderRNN, Seq2seq
-from seq2seq.loss import Perplexity
+from seq2seq.loss import Criterion
 from seq2seq.optim import Optimizer
 from seq2seq.dataset import SourceField, TargetField
 from seq2seq.evaluator import Predictor
@@ -125,9 +125,7 @@ else:
     # seq2seq.tgt_field_name = 'tgt'
 
     # Prepare loss
-    weight = torch.ones(vocab_size)
-    pad = 0
-    loss = Perplexity(weight, pad)
+    loss = Criterion()
     if torch.cuda.is_available():
         loss.cuda()
 

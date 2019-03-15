@@ -10,10 +10,11 @@ from torch import optim
 
 import seq2seq
 from seq2seq.evaluator import Evaluator
-from seq2seq.loss import NLLLoss
+from seq2seq.loss import Criterion
 from seq2seq.optim import Optimizer
 from seq2seq.util.checkpoint import Checkpoint
 
+import math
 class SupervisedTrainer(object):
     """ The SupervisedTrainer class helps in setting up a training framework in a
     supervised setting.
@@ -25,7 +26,7 @@ class SupervisedTrainer(object):
         batch_size (int, optional): batch size for experiment, (default: 64)
         checkpoint_every (int, optional): number of batches to checkpoint after, (default: 100)
     """
-    def __init__(self, expt_dir='experiment', loss=NLLLoss(), batch_size=64,
+    def __init__(self, expt_dir='experiment', loss=Criterion, batch_size=64,
                  random_seed=None,
                  checkpoint_every=100, print_every=100):
         self._trainer = "Simple Trainer"
@@ -48,18 +49,19 @@ class SupervisedTrainer(object):
 
         self.logger = logging.getLogger(__name__)
 
-    def _train_batch(self, input_variable, input_lengths, target_variable, model, teacher_forcing_ratio):
+    def _train_batch(self, input_variable, input_lengths, target_variable, target_lengths, model, teacher_forcing_ratio):
         loss = self.loss
         # Forward propagation
         decoder_outputs, decoder_hidden, other = model(input_variable, input_lengths, target_variable,
                                                        teacher_forcing_ratio=teacher_forcing_ratio)
+        self.optimizer.zero_grad()
         # Get loss
-        loss.reset()
-        for step, step_output in enumerate(decoder_outputs):
-            batch_size = target_variable.size(0)
-            loss.eval_batch(step_output.contiguous().view(batch_size, -1), target_variable[:, step + 1])
+        loss.reset()        
+        # for step, step_output in enumerate(decoder_outputs):
+        #     batch_size = target_variable.size(0)
+        #     loss.eval_batch(step_output.contiguous().view(batch_size, -1), target_variable[:, step + 1])
+        loss.eval_batch(decoder_outputs, target_variable, target_lengths)
         # Backward propagation
-        model.zero_grad()
         loss.backward()
         self.optimizer.step()
 
@@ -73,13 +75,13 @@ class SupervisedTrainer(object):
         epoch_loss_total = 0  # Reset every epoch
 
         device = None if torch.cuda.is_available() else -1
-        batch_iterator = torchtext.data.BucketIterator(
-            dataset=data, batch_size=self.batch_size,
-            sort=False, sort_within_batch=True,
-            sort_key=lambda x: len(x.src),
-            device=device, repeat=False)
-
-        steps_per_epoch = len(batch_iterator)
+        # batch_iterator = torchtext.data.BucketIterator(
+        #     dataset=data, batch_size=self.batch_size,
+        #     sort=False, sort_within_batch=True,
+        #     sort_key=lambda x: len(x.src),
+        #     device=device, repeat=False)
+        ld = iter(data)
+        steps_per_epoch = len(ld)
         total_steps = steps_per_epoch * n_epochs
 
         step = start_step
@@ -87,20 +89,16 @@ class SupervisedTrainer(object):
         for epoch in range(start_epoch, n_epochs + 1):
             log.debug("Epoch: %d, Step: %d" % (epoch, step))
 
-            batch_generator = batch_iterator.__iter__()
-            # consuming seen batches from previous training
-            for _ in range((epoch - 1) * steps_per_epoch, step):
-                next(batch_generator)
-
             model.train(True)
-            for batch in batch_generator:
+            for batch in ld:
                 step += 1
                 step_elapsed += 1
+                inputs = next(ld)
+                input_variables, input_lengths = inputs['question'], inputs['qLengths']
+                target_variables = inputs['response']
+                target_lengths = inputs['rLengths']
 
-                input_variables, input_lengths = getattr(batch, seq2seq.src_field_name)
-                target_variables = getattr(batch, seq2seq.tgt_field_name)
-
-                loss = self._train_batch(input_variables, input_lengths.tolist(), target_variables, model, teacher_forcing_ratio)
+                loss = self._train_batch(input_variables, input_lengths, target_variables, target_lengths, model, teacher_forcing_ratio)
 
                 # Record average loss
                 print_loss_total += loss
@@ -127,7 +125,7 @@ class SupervisedTrainer(object):
 
             epoch_loss_avg = epoch_loss_total / min(steps_per_epoch, step - start_step)
             epoch_loss_total = 0
-            log_msg = "Finished epoch %d: Train %s: %.4f" % (epoch, self.loss.name, epoch_loss_avg)
+            log_msg = "Finished epoch %d: Train %s: %.4f, Perplexity: %.4f" % (epoch, self.loss.name, epoch_loss_avg, math.exp(epoch_loss_avg))
             if dev_data is not None:
                 dev_loss, accuracy = self.evaluator.evaluate(model, dev_data)
                 self.optimizer.update(dev_loss, epoch)
