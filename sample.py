@@ -130,7 +130,7 @@ else:
     optimizer = None
     if not opt.resume:
         # Initialize model
-        hidden_size=128
+        hidden_size=100
         bidirectional = True
 
         encoder = EncoderRNN(vocab_size, max_len, hidden_size,
