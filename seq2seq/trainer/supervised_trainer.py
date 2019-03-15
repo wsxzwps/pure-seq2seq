@@ -54,7 +54,7 @@ class SupervisedTrainer(object):
         # Forward propagation
         decoder_outputs, decoder_hidden, other = model(input_variable, input_lengths, target_variable,
                                                        teacher_forcing_ratio=teacher_forcing_ratio)
-        self.optimizer.zero_grad()
+        
         # Get loss
         loss.reset()        
         # for step, step_output in enumerate(decoder_outputs):
@@ -62,6 +62,7 @@ class SupervisedTrainer(object):
         #     loss.eval_batch(step_output.contiguous().view(batch_size, -1), target_variable[:, step + 1])
         loss.eval_batch(decoder_outputs, target_variable, target_lengths)
         # Backward propagation
+        model.zero_grad()
         loss.backward()
         self.optimizer.step()
 
