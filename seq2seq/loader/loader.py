@@ -26,7 +26,7 @@ class CustomDataset(Dataset):
 			lines = f.readlines()
 
 		for i in range(len(lines)):
-			sentences = lines[i].split('__eou__')[:-1] # there's one empty sentence in the end
+			sentences = lines[i].lower().split('__eou__')[:-1] # there's one empty sentence in the end
 		
 			for j in range(len(sentences)-1):
 				question.append(sentences[j].strip().split())
