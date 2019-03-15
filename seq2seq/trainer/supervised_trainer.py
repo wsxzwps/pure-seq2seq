@@ -113,9 +113,9 @@ class SupervisedTrainer(object):
                 if step % self.print_every == 0 and step_elapsed > self.print_every:
                     print_loss_avg = print_loss_total / self.print_every
                     print_loss_total = 0
-                    log_msg = 'Progress: %d%%, Train loss: %.4f' % (
+                    log_msg = 'Progress: %d%%, Train loss: %.4f, Perplexity: %.4f' % (
                         step / total_steps * 100,
-                        print_loss_avg)
+                        print_loss_avg, math.exp(print_loss_avg))
                     log.info(log_msg)
 
                 # Checkpoint
@@ -128,9 +128,9 @@ class SupervisedTrainer(object):
             epoch_loss_total = 0
             log_msg = "Finished epoch %d: Train loss: %.4f, Perplexity: %.4f" % (epoch, epoch_loss_avg, math.exp(epoch_loss_avg))
             if dev_data is not None:
-                dev_loss, accuracy = self.evaluator.evaluate(model, dev_data)
+                dev_loss = self.evaluator.evaluate(model, dev_data)
                 self.optimizer.update(dev_loss, epoch)
-                log_msg += ", Dev loss: %.4f, Accuracy: %.4f" % (dev_loss, accuracy)
+                log_msg += ", Dev loss: %.4f, Perplexity: %.4f" % (dev_loss, math.exp(dev_data))
                 model.train(mode=True)
             else:
                 self.optimizer.update(epoch_loss_avg, epoch)

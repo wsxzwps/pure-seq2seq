@@ -32,41 +32,21 @@ class Evaluator(object):
 
         loss = self.loss
         loss.reset()
-        match = 0
-        total = 0
 
-        device = None if torch.cuda.is_available() else -1
-        batch_iterator = torchtext.data.BucketIterator(
-            dataset=data, batch_size=self.batch_size,
-            sort=True, sort_key=lambda x: len(x.src),
-            device=device, train=False)
-        tgt_vocab = data.fields[seq2seq.tgt_field_name].vocab
-        pad = tgt_vocab.stoi[data.fields[seq2seq.tgt_field_name].pad_token]
+        batch_iterator = iter(data)
 
         with torch.no_grad():
             for batch in batch_iterator:
-                input_variables, input_lengths  = getattr(batch, seq2seq.src_field_name)
-                target_variables = getattr(batch, seq2seq.tgt_field_name)
+                input_variables, input_lengths  = batch['question'], batch['qLengths']
+                target_variables, target_lengths = batch['response'], batch['rLengths']
                 
                 if torch.cuda.is_available():
                     target_variables = target_variables.cuda()
+                    input_variables = input_variables.cuda()
 
-                decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths.tolist(), target_variables)
+                decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths, target_variables)
+        
+                loss.eval_batch(decoder_outputs, target_variables, target_lengths)
 
-                # Evaluation
-                seqlist = other['sequence']
-                for step, step_output in enumerate(decoder_outputs):
-                    target = target_variables[:, step + 1]
-                    loss.eval_batch(step_output.view(target_variables.size(0), -1), target)
 
-                    non_padding = target.ne(pad)
-                    correct = seqlist[step].view(-1).eq(target).masked_select(non_padding).sum().item()
-                    match += correct
-                    total += non_padding.sum().item()
-
-        if total == 0:
-            accuracy = float('nan')
-        else:
-            accuracy = match / total
-
-        return loss.get_loss(), accuracy
+        return loss.get_loss()
