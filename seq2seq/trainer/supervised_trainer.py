@@ -81,15 +81,15 @@ class SupervisedTrainer(object):
         #     sort=False, sort_within_batch=True,
         #     sort_key=lambda x: len(x.src),
         #     device=device, repeat=False)
-        ld = iter(data)
-        steps_per_epoch = len(ld)
+        
+        steps_per_epoch = len(data)
         total_steps = steps_per_epoch * n_epochs
 
         step = start_step
         step_elapsed = 0
         for epoch in range(start_epoch, n_epochs + 1):
             log.debug("Epoch: %d, Step: %d" % (epoch, step))
-
+            ld = iter(data)
             model.train(True)
             for batch in ld:
                 step += 1
