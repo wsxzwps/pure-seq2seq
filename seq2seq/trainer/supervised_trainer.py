@@ -95,11 +95,14 @@ class SupervisedTrainer(object):
                 step += 1
                 step_elapsed += 1
                 inputs = next(ld)
-                if torch.cuda.is_available():
-                    inputs = inputs.cuda()
+                
                 input_variables, input_lengths = inputs['question'], inputs['qLengths']
                 target_variables = inputs['response']
                 target_lengths = inputs['rLengths']
+
+                if torch.cuda.is_available():
+                    input_variables = input_variables.cuda()
+                    target_variables = target_variables.cuda()
 
                 loss = self._train_batch(input_variables, input_lengths, target_variables, target_lengths, model, teacher_forcing_ratio)
 
