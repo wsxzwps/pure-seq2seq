@@ -95,6 +95,8 @@ class SupervisedTrainer(object):
                 step += 1
                 step_elapsed += 1
                 inputs = next(ld)
+                if torch.cuda.is_available():
+                    inputs = inputs.cuda()
                 input_variables, input_lengths = inputs['question'], inputs['qLengths']
                 target_variables = inputs['response']
                 target_lengths = inputs['rLengths']
