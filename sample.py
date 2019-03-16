@@ -92,7 +92,7 @@ decoder = DecoderRNN(vocab_size, max_len, hidden_size * 2 if bidirectional else 
                         eos_id=eos_id, sos_id=sos_id)
 
 seq2seq = Seq2seq(encoder, decoder)
-optimizer = optim.Adam(seq2seq.parameters(), lr=0.0002)
+
 
 
 if torch.cuda.is_available():
@@ -108,13 +108,13 @@ if opt.load_checkpoint is not None:
     checkpoint = torch.load(checkpoint_path)
 
     seq2seq.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    optimizer = checkpoint['optimizer']
     loss = checkpoint['loss']
 
 else:
     loss = Criterion()
+    optimizer = Optimizer(optim.Adam(seq2seq.parameters(), lr=0.0002),max_grad_norm=5)
 
-opti = Optimizer(optimizer, max_grad_norm=5)
 
 
 t = SupervisedTrainer(loss=loss, batch_size=32,
@@ -123,7 +123,7 @@ t = SupervisedTrainer(loss=loss, batch_size=32,
 
 seq2seq = t.train(seq2seq, train,
                     num_epochs=1, dev_data=dev,
-                    optimizer=opti,
+                    optimizer=optimizer,
                     teacher_forcing_ratio=0.5,
                     resume=opt.resume)
 
