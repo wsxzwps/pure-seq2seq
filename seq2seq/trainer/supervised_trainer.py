@@ -130,7 +130,7 @@ class SupervisedTrainer(object):
             if dev_data is not None:
                 dev_loss = self.evaluator.evaluate(model, dev_data)
                 self.optimizer.update(dev_loss, epoch)
-                log_msg += ", Dev loss: %.4f, Perplexity: %.4f" % (dev_loss, math.exp(dev_data))
+                log_msg += ", Dev loss: %.4f, Perplexity: %.4f" % (dev_loss, math.exp(dev_loss))
                 model.train(mode=True)
             else:
                 self.optimizer.update(epoch_loss_avg, epoch)
@@ -175,7 +175,7 @@ class SupervisedTrainer(object):
             start_epoch = 1
             step = 0
             if optimizer is None:
-                optimizer = Optimizer(optim.Adam(model.parameters(), lr=0.005), max_grad_norm=5)
+                optimizer = Optimizer(optim.Adam(model.parameters(), lr=0.01), max_grad_norm=5)
             self.optimizer = optimizer
 
         self.logger.info("Optimizer: %s, Scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
