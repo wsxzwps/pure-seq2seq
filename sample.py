@@ -153,7 +153,7 @@ else:
         # optimizer.set_scheduler(scheduler)
 
     # train
-    t = SupervisedTrainer(loss=loss, batch_size=32,
+    t = SupervisedTrainer(loss=loss, batch_size=128,
                           checkpoint_every=1000,
                           print_every=10, expt_dir=opt.expt_dir)
 
