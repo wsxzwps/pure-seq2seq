@@ -74,7 +74,7 @@ dev = loader.ldDev
 test = loader.ldTestEval
 
 # Initialize model
-hidden_size=100
+hidden_size=300
 bidirectional = True
 
 # hard coded some arguments for now
