@@ -51,3 +51,5 @@ class Optimizer(object):
             self.scheduler.step(loss)
         else:
             self.scheduler.step()
+    
+
