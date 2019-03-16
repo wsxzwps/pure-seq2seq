@@ -120,7 +120,13 @@ class SupervisedTrainer(object):
 
                 # Checkpoint
                 if step % self.checkpoint_every == 0 or step == total_steps:
-                    torch.save(model.state_dict(),self.expt_dir+'checkpoint'+str(step))
+
+                    torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': self.optimizer.state_dict(),
+                        'loss': self.loss
+                        }, self.expt_dir+'checkpoint')
 
             if step_elapsed == 0: continue
 
@@ -175,7 +181,7 @@ class SupervisedTrainer(object):
             start_epoch = 1
             step = 0
             if optimizer is None:
-                optimizer = Optimizer(optim.Adam(model.parameters(), lr=0.001), max_grad_norm=5)
+                optimizer = Optimizer(optim.Adam(model.parameters(), lr=0.0002), max_grad_norm=5)
             self.optimizer = optimizer
 
         self.logger.info("Optimizer: %s, Scheduler: %s" % (self.optimizer.optimizer, self.optimizer.scheduler))
