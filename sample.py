@@ -98,8 +98,8 @@ seq2seq = Seq2seq(encoder, decoder)
 if torch.cuda.is_available():
     seq2seq = seq2seq.cuda()
 
-for param in seq2seq.parameters():
-    param.data.uniform_(-0.08, 0.08)
+# for param in seq2seq.parameters():
+#     param.data.uniform_(-0.08, 0.08)
 
 
 if opt.load_checkpoint is not None:
@@ -122,7 +122,7 @@ t = SupervisedTrainer(loss=loss, batch_size=32,
                         print_every=10, expt_dir=opt.expt_dir)
 
 seq2seq = t.train(seq2seq, train,
-                    num_epochs=5, dev_data=dev,
+                    num_epochs=1, dev_data=dev,
                     optimizer=optimizer,
                     teacher_forcing_ratio=0.5,
                     resume=opt.resume)
