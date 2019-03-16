@@ -118,7 +118,7 @@ class Predictor(object):
                     input_variables = input_variables.cuda()
 
                 decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths, target_variables)
-                output_d = torch.cat([decoder_outputs[i].unsqueeze(1) for i in range(len(outputs))],1)
+                output_d = torch.cat([decoder_outputs[i].unsqueeze(1) for i in range(len(decoder_outputs))],1)
                 for i in range(output_d.shape[0]):
                     sentence = []
                     for j in range(decoder_outputs[i].shape[0]):
