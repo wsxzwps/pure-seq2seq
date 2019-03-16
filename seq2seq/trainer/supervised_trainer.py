@@ -126,7 +126,7 @@ class SupervisedTrainer(object):
                         'model_state_dict': model.state_dict(),
                         'optimizer_state_dict': self.optimizer.state_dict(),
                         'loss': self.loss
-                        }, self.expt_dir+'checkpoint')
+                        }, self.expt_dir+'/checkpoint')
 
             if step_elapsed == 0: continue
 
