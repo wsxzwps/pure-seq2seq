@@ -124,7 +124,7 @@ class Predictor(object):
                     for j in range(decoder_outputs[i].shape[0]):
                         word = torch.topk(output_d[i,j,:], 1)[1]
                         sentence.append(word.item())
-                    self.rev_vocab(sentence)
+                    self.rev_vocabulary(sentence)
         
                 loss.eval_batch(decoder_outputs, target_variables, target_lengths)
 
