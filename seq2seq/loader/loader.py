@@ -59,7 +59,7 @@ class CustomDataset(Dataset):
 def seq_collate(batch):
     batchSize = len(batch)
 
-	maxLen_q = 0
+    maxLen_q = 0
 	maxLen_r = 0
 	lengths = []
 
