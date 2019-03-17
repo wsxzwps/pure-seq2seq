@@ -57,13 +57,13 @@ class CustomDataset(Dataset):
 		return indArr
 		
 def seq_collate(batch):
-    batchSize = len(batch)
+	batchSize = len(batch)
+	
+	maxLen_q = 0
+	maxLen_r = 0
+	lengths = []
 
-    maxLen_q = 0
-    maxLen_r = 0
-    lengths = []
-
-    for i, seq in enumerate(batch):
+	for i, seq in enumerate(batch):
 		seqLen_q = len(seq[0])
 		seqLen_r = len(seq[1])
 		lengths.append([i, seqLen_q, seqLen_r])
