@@ -72,7 +72,7 @@ def seq_collate(batch):
 		if seqLen_r > maxLen_r:
 			maxLen_r = seqLen_r
 	question = np.zeros([batchSize, maxLen_q])
-	response = np.zeros([batchSize, maxLen_q])
+	response = np.zeros([batchSize, maxLen_r])
 	qLengths = []
 	rLengths = []
 
