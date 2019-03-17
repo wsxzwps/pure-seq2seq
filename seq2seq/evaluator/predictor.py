@@ -81,11 +81,8 @@ class Predictor(object):
             src_vocab (seq2seq.dataset.vocabulary.Vocabulary): source sequence vocabulary
             tgt_vocab (seq2seq.dataset.vocabulary.Vocabulary): target sequence vocabulary
         """
-        if torch.cuda.is_available():
-            self.model = model.cuda()
-        else:
-            self.model = model.cpu()
 
+        self.model = model
         with open(rev_vocab_path, 'rb') as fp:
             self.rev_vocab = pickle.load(fp, encoding='latin1')
 
