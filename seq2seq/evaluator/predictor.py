@@ -114,9 +114,9 @@ class Predictor(object):
                 target_variables, target_lengths = batch['response'], batch['rLengths']
                 
                 print(target_variables)
-                if torch.cuda.is_available():
-                    target_variables = target_variables.cuda()
-                    input_variables = input_variables.cuda()
+                # if torch.cuda.is_available():
+                #     target_variables = target_variables.cuda()
+                #     input_variables = input_variables.cuda()
 
                 decoder_outputs, decoder_hidden, other = model(input_variables, input_lengths, target_variables)
                 output_d = torch.cat([decoder_outputs[i].unsqueeze(1) for i in range(len(decoder_outputs))],1)
