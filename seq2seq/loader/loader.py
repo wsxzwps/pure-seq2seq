@@ -58,24 +58,36 @@ class CustomDataset(Dataset):
 		
 def seq_collate(batch):
     batchSize = len(batch)
-    def extract(ind):
-        maxLen = 0
-        lengths = []
-        for i, seq in enumerate(batch):
-            seqLen = len(seq[ind])
-            lengths.append([i, seqLen])
-            if seqLen > maxLen:
-                maxLen = seqLen
-        packed = np.zeros([batchSize, maxLen])
-        lengths = sorted(lengths, key=lambda x:x[1], reverse=True)
-        for i in range(batchSize):
-            packed[i][:lengths[i][1]] = batch[lengths[i][0]][ind]
-        lengths = [lengths[i][1] for i in range(len(lengths))]
-        # inds = np.argsort(lengths)[::-1]
-        return torch.LongTensor(packed), torch.tensor(lengths)
 
-    question, qLengths = extract(0)
-    response, rLengths = extract(1) 
+	maxLen_q = 0
+	maxLen_r = 0
+	lengths = []
+
+	for i, seq in enumerate(batch):
+		seqLen_q = len(seq[0])
+		seqLen_r = len(seq[1])
+		lengths.append([i, seqLen_q, seqLen_r])
+		if seqLen_q > maxLen_q:
+			maxLen_q = seqLen_q
+		if seqLen_r > maxLen_r:
+			maxLen_r = seqLen_r
+	question = np.zeros([batchSize, maxLen_q])
+	response = np.zeros([batchSize, maxLen_q])
+	qLengths = []
+	rLengths = []
+
+	lengths = sorted(lengths, key=lambda x:x[1], reverse=True)
+	for i in range(batchSize):
+		question[i][:lengths[i][1]] = batch[lengths[i][0]][0]
+		response[i][:lengths[i][2]] = batch[lengths[i][0]][1]
+		rLengths.append(lengths[i][2])
+	qLengths = [lengths[i][1] for i in range(len(lengths))]
+
+	question = torch.LongTensor(question)
+	response = torch.LongTensor(response)
+	qLengths = torch.tensor(qLengths)
+	rLengths = torch.tensor(rLengths)
+
 
     return {'question': question,
 			'qLengths': qLengths,
