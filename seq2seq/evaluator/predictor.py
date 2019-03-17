@@ -113,7 +113,7 @@ class Predictor(object):
                 input_variables, input_lengths  = batch['question'], batch['qLengths']
                 target_variables, target_lengths = batch['response'], batch['rLengths']
                 
-                print(target_lengths.item())
+                print(target_variables)
                 if torch.cuda.is_available():
                     target_variables = target_variables.cuda()
                     input_variables = input_variables.cuda()
