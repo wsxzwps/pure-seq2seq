@@ -86,15 +86,21 @@ class Predictor(object):
         with open(rev_vocab_path, 'rb') as fp:
             self.rev_vocab = pickle.load(fp, encoding='latin1')
 
-    def rev_vocabulary(self, idx_seq):
+    def rev_vocabulary(self, idx_seq, input_sentence):
+        sentence_in = []
         sentence_out = []
         for idx in idx_seq:
             sentence_out.append(self.rev_vocab[idx])
             # stop at the first __eou__
             if idx == 3:
                 break
+        
+        for i in range(input_sentence.shape[0]):
+            sentence_in.append(self.rev_vocab[input_sentence[i].item()])
 
         with open('result', 'a') as f:
+            f.write(' '.join(sentence_in))
+            f.write('\t\t')
             f.write(' '.join(sentence_out))
             f.write('\n')
 
@@ -121,5 +127,5 @@ class Predictor(object):
                     for j in range(output_d.shape[1]):
                         word = torch.topk(output_d[i,j,:], 1)[1]
                         sentence.append(word.item())
-                    self.rev_vocabulary(sentence)
+                    self.rev_vocabulary(sentence, input_variables[i])
         
