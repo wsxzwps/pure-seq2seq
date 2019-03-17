@@ -58,7 +58,7 @@ class CustomDataset(Dataset):
 		
 def seq_collate(batch):
 	batchSize = len(batch)
-	
+
 	maxLen_q = 0
 	maxLen_r = 0
 	lengths = []
@@ -89,7 +89,7 @@ def seq_collate(batch):
 	rLengths = torch.tensor(rLengths)
 
 
-    return {'question': question,
+	return {'question': question,
 			'qLengths': qLengths,
 			'response': response,
 			'rLengths': rLengths
